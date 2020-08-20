@@ -1,0 +1,2 @@
+INSERT INTO PROPERTIES (APPLICATION, PROFILE, LABEL, KEY, VALUE) VALUES ('demo', 'default', 'master', 'application.message', 'sample jdbc message for application in default stage');
+INSERT INTO PROPERTIES (APPLICATION, PROFILE, LABEL, KEY, VALUE) VALUES ('demo', 'dev', 'master', 'application.message', 'sample jdbc message for application in dev stage');

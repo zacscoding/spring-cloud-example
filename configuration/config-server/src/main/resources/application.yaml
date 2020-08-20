@@ -1,0 +1,56 @@
+server:
+  port: 8888
+
+logging:
+  level:
+    root: warn
+
+spring:
+  application:
+    name: "config-server"
+  cloud:
+    config:
+      server:
+        prefix: /config-server
+        git:
+          # default 0, 매 요청마다 fetch
+          # 단위는 Second 이며 (refresh > 0 && (now() - lastRefresh) < (refreshRate * 1000) 면 fetch 하지 않음
+          refreshRate: 5
+          # uri: https://github.com/evagova/config-repo
+          uri: file://${user.home}/config-repo
+
+---
+spring:
+  profiles: jdbc
+  datasource:
+    url: jdbc:h2:mem:testdb?DB_CLOSE_ON_EXIT=FALSE
+    username: root
+    password: root
+    driver-class-name: org.h2.Driver
+  cloud:
+    config:
+      server:
+        jdbc:
+          sql: SELECT KEY, VALUE from PROPERTIES where APPLICATION=? and PROFILE=? and LABEL=?
+          order: 1
+
+---
+spring:
+  profiles: rabbitmq
+  cloud:
+    bus:
+      env:
+        enabled: true
+      refresh:
+        enabled: true
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: user
+    password: secret
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: ['bus-refresh']

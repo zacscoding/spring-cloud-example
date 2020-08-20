@@ -1,0 +1,14 @@
+spring:
+  profiles:
+    active: {ENV}
+  application:
+    name: demo
+  cloud:
+    config:
+      uri: http://localhost:8888/config-server
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "refresh"
