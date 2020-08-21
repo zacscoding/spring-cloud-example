@@ -1,0 +1,44 @@
+package article;
+
+import java.util.Arrays;
+import java.util.UUID;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@SpringBootApplication
+@RestController
+public class AccountServerApplication {
+    public static void main(String[] args) {
+        logger.warn("start account server with : {}", Arrays.toString(args));
+        SpringApplication.run(AccountServerApplication.class, args);
+    }
+
+    @GetMapping("/accounts/{accountId}")
+    public ResponseEntity<Account> getAccount(@PathVariable("accountId") Long id) {
+        logger.info("## account service. getAccount({}) is called", id);
+        return ResponseEntity.ok(Account.builder().id(id).name(UUID.randomUUID().toString()).build());
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class Account {
+        Long id;
+        String name;
+    }
+}

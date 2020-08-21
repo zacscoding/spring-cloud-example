@@ -1,0 +1,16 @@
+server:
+  port: 3100
+
+spring:
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+
+eureka:
+  instance:
+    statusPageUrlPath: /eureka/info
+    healthCheckUrlPath: /eureka/healtheureka
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:3000/eureka/

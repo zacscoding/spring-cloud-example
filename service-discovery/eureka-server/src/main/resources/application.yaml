@@ -1,0 +1,85 @@
+server:
+  port: 3000
+
+logging:
+  level:
+    root: info
+#    org:
+#      springframework:
+#        cloud:
+#          netflix: debug
+#    com:
+#      netflix: debug
+
+#spring:
+#  freemarker:
+#    template-loader-path: classpath:/templates/
+#    prefer-file-system-access: false
+
+spring:
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+
+eureka:
+  dashboard:
+    path: /eureka-ui
+  instance:
+    hostname: localhost
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+
+---
+
+spring:
+  profiles: peer-1
+  application:
+    name: eureka-server-clustered
+server:
+  port: 3001
+eureka:
+  instance:
+    hostname: peer-1-server.com
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:3002/eureka/,http://localhost:3003/eureka/
+
+---
+
+spring:
+  profiles: peer-2
+  application:
+    name: eureka-server-clustered
+server:
+  port: 3002
+eureka:
+  instance:
+    hostname: peer-2-server.com
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:3001/eureka/,http://localhost:3003/eureka/
+
+---
+
+spring:
+  profiles: peer-3
+  application:
+    name: eureka-server-clustered
+server:
+  port: 3003
+eureka:
+  instance:
+    hostname: peer-3-server.com
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:3001/eureka/,http://localhost:3002/eureka/

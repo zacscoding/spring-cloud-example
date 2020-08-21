@@ -1,0 +1,11 @@
+dependencies {
+    // spring
+    compile 'org.springframework.boot:spring-boot-starter-web'
+
+    // eureka
+    implementation('org.springframework.cloud:spring-cloud-starter-netflix-eureka-server') {
+        exclude group: 'org.springframework.cloud', module: 'spring-cloud-starter-ribbon'
+        exclude group: 'com.netflix.ribbon', module: 'ribbon-eurek'
+    }
+}
+
