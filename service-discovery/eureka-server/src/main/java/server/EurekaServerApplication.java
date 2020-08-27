@@ -24,7 +24,7 @@ public class EurekaServerApplication {
         logger.warn("## Args {}", Arrays.toString(args));
         final ConfigurableApplicationContext ctx = new SpringApplicationBuilder(EurekaServerApplication.class)
                 .web(WebApplicationType.SERVLET).run(args);
-        displayBeans(ctx);
+        // displayBeans(ctx);
     }
 
     private static void displayBeans(ConfigurableApplicationContext ctx) {

@@ -8,9 +8,7 @@ spring:
         enabled: false
 
 eureka:
-  instance:
-    statusPageUrlPath: /eureka/info
-    healthCheckUrlPath: /eureka/healtheureka
   client:
     serviceUrl:
       defaultZone: http://localhost:3000/eureka/
+    registerWithEureka: false

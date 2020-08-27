@@ -19,13 +19,13 @@ import lombok.extern.slf4j.Slf4j;
 public class DiscoveryController {
     private final DiscoveryClient discoveryClient;
 
-    @GetMapping("/discovery/{serviceId}")
+    @GetMapping("/{serviceId}")
     public List<ServiceInstance> discovery(@PathVariable("serviceId") String serviceId) {
         logger.warn("discovery {}", serviceId);
         return discoveryClient.getInstances(serviceId);
     }
 
-    @GetMapping("/discovery/services")
+    @GetMapping("/services")
     public List<String> discoveryServices() {
         final List<String> services = discoveryClient.getServices();
         logger.warn("services {}", String.join(",", services));

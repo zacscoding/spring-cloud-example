@@ -1,0 +1,23 @@
+### TODO : add env after write markdown
+
+########################
+### EUREKA Server
+GET http://localhost:3000/actuator/health
+
+
+########################
+### Article Server
+
+GET http://localhost:3200/discovery/services
+
+####
+GET http://localhost:3200/discovery/account-service
+
+########################
+### Account Server
+
+### health
+GET http://localhost:3100/actuator/health
+
+### info
+GET http://localhost:3100/actuator/info

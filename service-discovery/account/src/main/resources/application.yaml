@@ -1,6 +1,16 @@
 server:
   port: 3100
 
+logging:
+  level:
+    root: info
+    org:
+      springframework:
+        cloud:
+          netflix: debug
+    com:
+      netflix: debug
+
 spring:
   cloud:
     loadbalancer:
@@ -9,8 +19,14 @@ spring:
 
 eureka:
   instance:
-    statusPageUrlPath: /eureka/info
-    healthCheckUrlPath: /eureka/healtheureka
+    statusPageUrlPath: /actuator/info
+    healthCheckUrlPath: /actuator/health
   client:
     serviceUrl:
       defaultZone: http://localhost:3000/eureka/
+
+info:
+  app:
+    name: Account Example Application
+    version: 1.0.0
+    discription: This is a demo project for eurkea

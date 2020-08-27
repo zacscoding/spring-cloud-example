@@ -1,10 +1,16 @@
 package article;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +30,22 @@ public class AccountServerApplication {
     public static void main(String[] args) {
         logger.warn("start account server with : {}", Arrays.toString(args));
         SpringApplication.run(AccountServerApplication.class, args);
+    }
+
+    @Autowired
+    private DiscoveryClient discoveryClient;
+
+    @GetMapping("/discovery/{serviceId}")
+    public List<ServiceInstance> discovery(@PathVariable("serviceId") String serviceId) {
+        logger.warn("discovery {}", serviceId);
+        return discoveryClient.getInstances(serviceId);
+    }
+
+    @GetMapping("/discovery/services")
+    public Map<String, List<ServiceInstance>> discoveryServices() {
+        return discoveryClient.getServices()
+                              .stream()
+                              .collect(Collectors.toMap(s -> s, s -> discoveryClient.getInstances(s)));
     }
 
     @GetMapping("/accounts/{accountId}")
