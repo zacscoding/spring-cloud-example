@@ -1,0 +1,8 @@
+### Account service
+### Get accounts all
+GET {{account-service-endpoint}}/accounts
+
+### Get account by email
+GET {{account-service-endpoint}}/account/{{account-service-email}}
+
+

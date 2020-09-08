@@ -1,0 +1,28 @@
+version: '3.1'
+
+services:
+  db:
+    image: mysql:8.0.17
+    container_name: db
+    command: [ '--default-authentication-plugin=mysql_native_password', '--default-storage-engine=innodb' ]
+    hostname: db
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=my_database
+    ports:
+      - 33306:3306
+  account-service:
+    build:
+      context: ../../account-service
+      dockerfile: Dockerfile
+    container_name: account-service
+    image: account-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:33306/my_database?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+      - SPRING_DATASOURCE_HIKARI_JDBC-URL=jdbc:mysql://db:33306/my_database?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+    ports:
+      - 3000:3000
+    restart: always
+    hostname: account-service
+    depends_on:
+      - db

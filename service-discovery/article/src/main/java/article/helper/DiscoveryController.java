@@ -1,4 +1,4 @@
-package article;
+package article.helper;
 
 import java.util.List;
 

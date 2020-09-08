@@ -21,6 +21,12 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class EurekaServerApplication {
     public static void main(String[] args) {
+        // TEMP FOR WORKING
+        if (args.length == 0) {
+            args = new String[] {
+                    "--spring.profiles.active=peer-1"
+            };
+        }
         logger.warn("## Args {}", Arrays.toString(args));
         final ConfigurableApplicationContext ctx = new SpringApplicationBuilder(EurekaServerApplication.class)
                 .web(WebApplicationType.SERVLET).run(args);

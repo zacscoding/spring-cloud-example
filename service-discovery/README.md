@@ -209,17 +209,57 @@ public interface ServiceInstance {
 [Eureka wiki-Understanding-eureka-client-server-communication](https://github.com/Netflix/eureka/wiki/Understanding-eureka-client-server-communication)  
   
 **Register**  
-;Client -> Server에게 최초 Heatbeat에 포함하여 등록 요청을 보낸다.  
+;Client -> Server에게 등록 요청을 보낸다.  
   
 **Renew**  
 30초마다 heatbeat를 보내서 lease를 갱신한다. Server는 마지막 heatbeat를 보낸 시간보다 90초가 지났으면 해당 서비스를 Registry에서 제거한다.  
   
 **Fetch Registry**  
 Client는 Server로부터 registry 정보를 가져와 로컬 캐시에 담아둔다. 이러한 registry 정보는 service discovery하는데 사용된다.  
-(문서를 보면 dirty checking를 통해 효율적으로 정보를 조회한다. 실제 Eureka 코드에도 `InstanceInfo`클래스에 변경 사항이 있을때마다 setDirty()를 호출하고있다.)  
+아래의 `com.netflix.discovery.DiscoveryClient`를 살펴보면 delta를 조회하여 client의 이전 delta와 해시코드(문자열)를 비교하여 변경사항이 있으면 갱신한다.  
+
+```java
+private void getAndUpdateDelta(Applications applications) throws Throwable {
+    long currentUpdateGeneration = fetchRegistryGeneration.get();
+
+    Applications delta = null;
+    // /apps/delta?regions=... 호출
+    EurekaHttpResponse<Applications> httpResponse = eurekaTransport.queryClient.getDelta(remoteRegionsRef.get());
+    if (httpResponse.getStatusCode() == Status.OK.getStatusCode()) {
+        delta = httpResponse.getEntity();
+    }
+
+    if (delta == null) {
+        logger.warn("The server does not allow the delta revision to be applied because it is not safe. "
+                + "Hence got the full registry.");
+        getAndStoreFullRegistry();
+    } else if (fetchRegistryGeneration.compareAndSet(currentUpdateGeneration, currentUpdateGeneration + 1)) {
+        logger.debug("Got delta update with apps hashcode {}", delta.getAppsHashCode());
+        String reconcileHashCode = "";
+        if (fetchRegistryUpdateLock.tryLock()) {
+            try {
+                // client의 delta 갱신
+                updateDelta(delta);
+                // {instance_name}:{count}_{instance_name}_{count} ... 
+                reconcileHashCode = getReconcileHashCode(applications);
+            } finally {
+                fetchRegistryUpdateLock.unlock();
+            }
+        } else {
+            logger.warn("Cannot acquire update lock, aborting getAndUpdateDelta");
+        }
+        ...
+    } 
+    ...
+}
+```  
 
 **Cancel**  
 Client는 애플리케이션 종료 시 Server에게 Cancel 요청을 보내 registry에서 제거된다.  
+
+<br />
+
+> Eureka interacts
 
 ![Eureka interact](./assets/02_eureka_interact.png)  
 
@@ -231,7 +271,7 @@ Client는 애플리케이션 종료 시 Server에게 Cancel 요청을 보내 reg
 - **Service4** : 애플리에키션 종료 시 Cancel 요청을 보내지 않은 상태이다.
 - **Eureka Server** : Service4에 대하여 마지막 Heatbeat로 부터 90초가 지나서 Registry에서 제거한다.  
 
-더 자세한 Endpoint는 ![WIKI-Eureka-REST-operations](https://github.com/Netflix/eureka/wiki/Eureka-REST-operations)를 살펴보자.
+더 자세한 Endpoint는 [WIKI-Eureka-REST-operations](https://github.com/Netflix/eureka/wiki/Eureka-REST-operations) 를 살펴보자.
 
 <br />  
 
@@ -521,7 +561,13 @@ $ curl -XGET http://localhost:3100/discovery/services | jq .
 
 ---  
 
-## Netflix Eureka Server HA
+## Netflix Eureka Server HA  
+
+
+
+
+
+
   
 
 
