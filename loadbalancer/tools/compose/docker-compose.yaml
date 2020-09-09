@@ -1,0 +1,77 @@
+version: '3.1'
+
+services:
+  eureka-server:
+    build:
+      context: ../../eureka-server
+      dockerfile: Dockerfile
+    image: eureka-server
+    hostname: eureka-server
+    container_name: eureka-server
+    ports:
+      - 8761:8761
+
+  product-service-1:
+    image: product-service
+    build:
+      context: ../../product-service
+      dockerfile: Dockerfile
+    hostname: product-service-1
+    container_name: product-service-1
+    restart: always
+    environment:
+      - SERVER_PORT=3100
+      - STARTUP_WAIT=5
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://eureka-server:8761/eureka/
+    ports:
+      - 3100:3100
+    depends_on:
+      - eureka-server
+
+  product-service-2:
+    image: product-service
+    hostname: product-service-2
+    container_name: product-service-2
+    restart: always
+    environment:
+      - SERVER_PORT=3200
+      - STARTUP_WAIT=5
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://eureka-server:8761/eureka/
+    ports:
+      - 3200:3200
+    depends_on:
+      - eureka-server
+
+  product-service-3:
+    image: product-service
+    hostname: product-service-3
+    container_name: product-service-3
+    restart: always
+    environment:
+      - SERVER_PORT=3300
+      - STARTUP_WAIT=5
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://eureka-server:8761/eureka/
+    ports:
+      - 3300:3300
+    depends_on:
+      - eureka-server
+
+  search-service-1:
+    image: search-service
+    build:
+      context: ../../search-service
+      dockerfile: Dockerfile
+    hostname: search-service-1
+    container_name: search-service-1
+    restart: always
+    environment:
+      - SERVER_PORT=4100
+      - STARTUP_WAIT=5
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://eureka-server:8761/eureka/
+    ports:
+      - 4100:4100
+    depends_on:
+      - eureka-server
+      - product-service-1
+      - product-service-2
+      - product-service-3

@@ -1,0 +1,33 @@
+server:
+  port: 3100
+
+logging:
+  level:
+    root: info
+    org:
+      springframework:
+        cloud:
+          netflix: debug
+    com:
+      netflix: debug
+
+spring:
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+
+eureka:
+  instance:
+    statusPageUrlPath: /actuator/info
+    healthCheckUrlPath: /actuator/health
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+
+info:
+  app:
+    name: Product Example Application
+    version: 1.0.0
+    discription: This is a demo project for loadbalancer

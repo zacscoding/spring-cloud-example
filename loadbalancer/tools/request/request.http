@@ -1,0 +1,8 @@
+### Search service
+### Get discovery service
+GET http://localhost:4100/discovery/services
+
+### Get products
+GET http://localhost:4100/search
+
+

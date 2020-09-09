@@ -1,0 +1,10 @@
+dependencies {
+    // spring web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // eureka client
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+    // ribbon
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-ribbon'
+}

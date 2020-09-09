@@ -1,0 +1,5 @@
+rootProject.name = 'loadbalancer'
+include 'eureka-server'
+include 'product-service'
+include 'search-service'
+

@@ -1,0 +1,38 @@
+server:
+  port: 8761
+
+logging:
+  level:
+    root: info
+    org:
+      springframework:
+        cloud:
+          netflix: debug
+    com:
+      netflix: debug
+
+spring:
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+
+eureka:
+  dashboard:
+    path: /eureka-ui
+  instance:
+    hostname: localhost
+    statusPageUrlPath: /actuator/info
+    healthCheckUrlPath: /actuator/health
+  server:
+    enableSelfPreservation: false
+    responseCacheUpdateIntervalMs: 30000
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+
+info:
+  app:
+    name: Eureka server application
+    version: 1.0.0
+    discription: This is a demo project for loadbalancer
