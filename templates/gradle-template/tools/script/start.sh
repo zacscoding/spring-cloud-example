@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-SCRIPT_PATH=$(cd "$(dirname "$0")"pwd -P)
+SCRIPT_PATH=$( cd "$(dirname "$0")" ; pwd -P )
 APP=${1}
 PROFILE=${2}
 PORT=${3}

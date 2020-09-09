@@ -14,8 +14,18 @@ $ ./tools/script/start.sh account
 ```  
 
 > ## Run application with docker-compose  
-;TBD
 
+```bash
+// build project i.e gradlew clean build
+$ ./tools/script/compose.sh build
 
-docker build --build-arg JAR_FILE=build/libs/*.jar -t zacscoding/account-service .
+// start services with docker-compose
+$ ./tools/script/compose.sh up
+```
+
+---  
+
+# References
+
+- https://spring.io/blog/2020/01/27/creating-docker-images-with-spring-boot-2-3-0-m1
 

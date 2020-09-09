@@ -45,6 +45,10 @@ subprojects {
         }
     }
 
+    bootJar {
+        layered()
+    }
+
     bootRun {
         // jvm options
         if (project.hasProperty('jvmArgs')) {
@@ -56,6 +60,5 @@ subprojects {
             args project.args.split('\\s+')
         }
     }
-
 }
 

@@ -3,12 +3,12 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:33306/my_database?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/my_database?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
     username: root
     password: password
     driver-class-name: com.mysql.cj.jdbc.Driver
-    hikari:
-      jdbc-url: jdbc:mysql://localhost:33306/my_database?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+#    hikari:
+#      jdbc-url: jdbc:mysql://localhost:3306/my_database?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
     platform: mysql
     initialization-mode: always
   jpa:
