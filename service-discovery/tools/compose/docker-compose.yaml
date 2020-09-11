@@ -1,0 +1,68 @@
+version: '3.1'
+
+services:
+  eureka-peer-1:
+    build:
+      context: ../../eureka-server
+      dockerfile: Dockerfile
+    image: service-discovery/eureka-server
+    hostname: eureka-peer-1
+    container_name: eureka-peer-1
+    ports:
+      - 3001:3001
+    environment:
+      - SPRING_PROFILES_ACTIVE=peer-1
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://eureka-peer-2:3002/eureka/,http://eureka-peer-3:3003/eureka/
+  eureka-peer-2:
+    image: service-discovery/eureka-server
+    hostname: eureka-peer-2
+    container_name: eureka-peer-2
+    ports:
+      - 3002:3002
+    environment:
+      - SPRING_PROFILES_ACTIVE=peer-2
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://eureka-peer-1:3001/eureka/,http://eureka-peer-3:3003/eureka/
+  eureka-peer-3:
+    image: service-discovery/eureka-server
+    hostname: eureka-peer-3
+    container_name: eureka-peer-3
+    ports:
+      - 3003:3003
+    environment:
+      - SPRING_PROFILES_ACTIVE=peer-3
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://eureka-peer-1:3001/eureka/,http://eureka-peer-2:3002/eureka/
+
+  account-service:
+    build:
+      context: ../../account
+      dockerfile: Dockerfile
+    image: service-discovery/account
+    container_name: account-service
+    restart: always
+    environment:
+      - STARTUP_WAIT=5
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://eureka-peer-1:3001/eureka/,http://eureka-peer-2:3002/eureka/,http://eureka-peer-3:3003/eureka/
+    ports:
+      - 3100:3100
+    depends_on:
+      - eureka-peer-1
+      - eureka-peer-2
+      - eureka-peer-3
+
+  article-service:
+    build:
+      context: ../../article
+      dockerfile: Dockerfile
+    image: service-discovery/article
+    container_name: article-service
+    restart: always
+    environment:
+      - STARTUP_WAIT=5
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://eureka-peer-1:3001/eureka/,http://eureka-peer-2:3002/eureka/,http://eureka-peer-3:3003/eureka/
+    ports:
+      - 3200:3200
+    depends_on:
+      - eureka-peer-1
+      - eureka-peer-2
+      - eureka-peer-3
+      - account-service

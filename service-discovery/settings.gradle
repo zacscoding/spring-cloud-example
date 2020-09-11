@@ -1,6 +1,5 @@
 rootProject.name = 'service-discovery'
 include 'eureka-server'
-include 'eureka-client'
 include 'account'
 include 'article'
 

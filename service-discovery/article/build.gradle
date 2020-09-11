@@ -8,3 +8,7 @@ dependencies {
         exclude group: 'com.netflix.ribbon', module: 'ribbon-eurek'
     }
 }
+
+bootJar {
+    layered()
+}

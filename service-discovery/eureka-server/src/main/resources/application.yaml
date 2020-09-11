@@ -37,8 +37,6 @@ eureka:
     registerWithEureka: false
     # Eureka Client -> Eureka server로 Registry fetch 여부
     fetchRegistry: false
-    #serviceUrl:
-      #defaultZone: http://localhost:3000/eureka/
 
 info:
   app:

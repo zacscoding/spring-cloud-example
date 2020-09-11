@@ -11,3 +11,7 @@ dependencies {
     // actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }
+
+bootJar {
+    layered()
+}

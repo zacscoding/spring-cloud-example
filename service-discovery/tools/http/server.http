@@ -13,6 +13,9 @@ GET http://localhost:3200/discovery/services
 ####
 GET http://localhost:3200/discovery/account-service
 
+###
+GET http://localhost:3200/articles
+
 ########################
 ### Account Server
 

@@ -16,14 +16,17 @@ public class SearchConfiguration {
     @LoadBalanced
     public RestTemplate loadBalanced(RestTemplateBuilder builder) {
         return builder
-                .setConnectTimeout(Duration.ofSeconds(5))
-                .setReadTimeout(Duration.ofSeconds(5))
+                .setConnectTimeout(Duration.ofSeconds(1))
+                .setReadTimeout(Duration.ofSeconds(1))
                 .build();
     }
 
     @Primary
     @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder
+                .setConnectTimeout(Duration.ofSeconds(1))
+                .setReadTimeout(Duration.ofSeconds(1))
+                .build();
     }
 }

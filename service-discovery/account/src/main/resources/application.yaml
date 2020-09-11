@@ -24,7 +24,7 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:3000/eureka/
-    fetch-registry: true
+    fetch-registry: false
 
 info:
   app:

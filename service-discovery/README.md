@@ -204,9 +204,11 @@ public interface ServiceInstance {
 ![Eureka Server](assets/01_eureka_highlevel_archi.png)  
 
 - 위와 같이 **Eureka Server**와 Application에 포함된 **Eureka Client**가 존재한다.  
+- Application Service는 Service discovery에 대상이 되기 위해 Eureka Server에 등록을 하고 있다.
+- Application Client는 Service discovery에 대상은 아니지만 Fetch registry를 통해 다른 서비스 정보를 가져오고 있다.
 - Application Service를 살펴보면 **Eureka Client**를 통해 **Eureka Server**와 아래와 같은 상호작용을 하고 있다.  
 
-[Eureka wiki-Understanding-eureka-client-server-communication](https://github.com/Netflix/eureka/wiki/Understanding-eureka-client-server-communication)  
+[Eureka wiki:Understanding-eureka-client-server-communication](https://github.com/Netflix/eureka/wiki/Understanding-eureka-client-server-communication)  
   
 **Register**  
 ;Client -> Server에게 등록 요청을 보낸다.  
@@ -563,19 +565,184 @@ $ curl -XGET http://localhost:3100/discovery/services | jq .
 
 ## Netflix Eureka Server HA  
 
+### Peer Awareness  
 
+Eureka Server Cluster는 아래와 같이 동작한다.  
 
+![Eureka Peer](./assets/04_eureka_server_cluster.png)  
 
+- Eureka cluster에서 Eureka Server를 `peer`라고 표현하고 아래와 같은 행위를 `Peer Awareness`라고 부른다.
+- 각각의 Eureka Server는 Eureka Client를 이용하여 `Register`와 `Fetch Registry` 작업이 이루어진다.
+- 또한 `Register`, `Renew` 등 모든 Operation이 발생하면 다른 Peer에게 동일한 요청을 시도한다.  
+아래와 같이 [PeerAwareInstanceRegistryImpl](https://github.com/Netflix/eureka/blob/master/eureka-core/src/main/java/com/netflix/eureka/registry/PeerAwareInstanceRegistryImpl.java)를 살펴보자.  
+`Register` 요청에 대하여 Registry를 업데이트하고 `replicateToPeers()`를 통해서 다른 Peer에게 `Register with replica` 요청을 보낸다.  
+(즉 `POST /eureka/v2/apps/appID` 요청과 헤더에 Replica 속성을 true)  
 
+```java
+@Singleton
+public class PeerAwareInstanceRegistryImpl extends AbstractInstanceRegistry implements PeerAwareInstanceRegistry {
+    ...
+    @Override
+    public void register(final InstanceInfo info, final boolean isReplication) {
+        int leaseDuration = Lease.DEFAULT_DURATION_IN_SECS;
+        if (info.getLeaseInfo() != null && info.getLeaseInfo().getDurationInSecs() > 0) {
+            leaseDuration = info.getLeaseInfo().getDurationInSecs();
+        }
+        super.register(info, leaseDuration, isReplication);
+        replicateToPeers(Action.Register, info.getAppName(), info.getId(), info, null, isReplication);
+    }
+    ...
+}
+```
 
+### Start eureka cluster  
+
+Spring의 Profile 속성을 이용하여 아래와 같이 peer1-3을 구성해보자.  
+
+> application.yaml  
+
+```yaml
+---
+
+spring:
+  profiles: peer-1
+  application:
+    name: eureka-server-clustered
+server:
+  port: 3001
+eureka:
+  instance:
+    hostname: peer-1-server.com
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:3002/eureka/,http://localhost:3003/eureka/
+
+---
+
+spring:
+  profiles: peer-2
+  application:
+    name: eureka-server-clustered
+server:
+  port: 3002
+eureka:
+  instance:
+    hostname: peer-2-server.com
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:3001/eureka/,http://localhost:3003/eureka/
+
+---
+
+spring:
+  profiles: peer-3
+  application:
+    name: eureka-server-clustered
+server:
+  port: 3003
+eureka:
+  instance:
+    hostname: peer-3-server.com
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:3001/eureka/,http://localhost:3002/eureka/
+```
+
+> docker-compose.yaml  
+
+```yaml
+version: '3.1'
+
+services:
+  eureka-peer-1:
+    build:
+      context: ../../eureka-server
+      dockerfile: Dockerfile
+    image: service-discovery/eureka-server
+    hostname: eureka-peer-1
+    container_name: eureka-peer-1
+    ports:
+      - 3001:3001
+    environment:
+      - SPRING_PROFILES_ACTIVE=peer-1
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://eureka-peer-2:3002/eureka/,http://eureka-peer-3:3003/eureka/
+  eureka-peer-2:
+    image: service-discovery/eureka-server
+    hostname: eureka-peer-2
+    container_name: eureka-peer-2
+    ports:
+      - 3002:3002
+    environment:
+      - SPRING_PROFILES_ACTIVE=peer-2
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://eureka-peer-1:3001/eureka/,http://eureka-peer-3:3003/eureka/
+  eureka-peer-3:
+    image: service-discovery/eureka-server
+    hostname: eureka-peer-3
+    container_name: eureka-peer-3
+    ports:
+      - 3003:3003
+    environment:
+      - SPRING_PROFILES_ACTIVE=peer-3
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://eureka-peer-1:3001/eureka/,http://eureka-peer-2:3002/eureka/
+
+  account-service:
+    build:
+      context: ../../account
+      dockerfile: Dockerfile
+    image: service-discovery/account
+    container_name: account-service
+    restart: always
+    environment:
+      - STARTUP_WAIT=5
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://eureka-peer-1:3001/eureka/,http://eureka-peer-2:3002/eureka/,http://eureka-peer-3:3003/eureka/
+    ports:
+      - 3100:3100
+    depends_on:
+      - eureka-peer-1
+      - eureka-peer-2
+      - eureka-peer-3
+
+  article-service:
+    build:
+      context: ../../article
+      dockerfile: Dockerfile
+    image: service-discovery/article
+    container_name: article-service
+    restart: always
+    environment:
+      - STARTUP_WAIT=5
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://eureka-peer-1:3001/eureka/,http://eureka-peer-2:3002/eureka/,http://eureka-peer-3:3003/eureka/
+    ports:
+      - 3200:3200
+    depends_on:
+      - eureka-peer-1
+      - eureka-peer-2
+      - eureka-peer-3
+      - account-service
+```  
+
+> Run with script  
+
+```bash
+// gradle + docker build
+$ ./tools/script/compose.sh build
+
+// run docker-compose
+$ ./tools/script/compose.sh up
+```  
+
+- Check eureka server dash boards
+  - http://localhost:3001/eureka-ui
+  - http://localhost:3002/eureka-ui
+  - http://localhost:3003/eureka-ui
+- Check article api (`curl -XGET http://localhost:3200/articles`)    
   
-
-
-
-
-
-  
-
 ---  
 
 # References  
