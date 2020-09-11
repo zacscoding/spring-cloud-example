@@ -47,7 +47,7 @@ public class SearchApplication {
         for (String beanName : ctx.getBeanDefinitionNames()) {
             final Class<?> clazz = ctx.getBean(beanName).getClass();
             if (predicate.test(clazz.getName())) {
-                treeMap.put(clazz.getSimpleName(), beanName);
+                treeMap.put(clazz.getName(), beanName);
             }
         }
 

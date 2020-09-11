@@ -5,7 +5,7 @@ dependencies {
     // eureka client
     implementation('org.springframework.cloud:spring-cloud-starter-netflix-eureka-client') {
         exclude group: 'org.springframework.cloud', module: 'spring-cloud-starter-ribbon'
-        exclude group: 'com.netflix.ribbon', module: 'ribbon-eurek'
+        exclude group: 'com.netflix.ribbon', module: 'ribbon-eureka'
     }
 
     // actuator

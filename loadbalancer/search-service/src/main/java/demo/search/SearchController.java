@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
@@ -19,36 +20,52 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequiredArgsConstructor
 public class SearchController {
 
     private final DiscoveryClient discoveryClient;
     private final LoadBalancerClient loadBalancerClient;
     private final RestTemplate restTemplate;
+    private final RestTemplate loadBalanced;
 
-    // TODO : other load balancers
-    @GetMapping("/search")
+    public SearchController(DiscoveryClient discoveryClient,
+                            LoadBalancerClient loadBalancerClient,
+                            @Qualifier("restTemplate") RestTemplate restTemplate,
+                            @Qualifier("loadBalanced") RestTemplate loadBalanced) {
+        this.discoveryClient = discoveryClient;
+        this.loadBalancerClient = loadBalancerClient;
+        this.restTemplate = restTemplate;
+        this.loadBalanced = loadBalanced;
+    }
+
+    @GetMapping("/search/load-balancer-client")
     public ResponseEntity<ProductsResource> search() {
         final ServiceInstance instance = loadBalancerClient.choose("product-service");
-        logger.info("Choose service : {}", instance);
-        final String endpoint = String.format("%s://%s:%d", instance.isSecure() ? "https" : "http",
-                                              instance.getHost(), instance.getPort());
-        final URI uri = UriComponentsBuilder.fromHttpUrl(endpoint)
+        logger.info("## request /search/load-balancer-client -> Choose service : {}", instance);
+        return searchInternal(instance.getUri().toString(), restTemplate);
+    }
+
+    @GetMapping("/search/ribbon")
+    public ResponseEntity<ProductsResource> searchByRibbon() {
+        return searchInternal("http://product-service", loadBalanced);
+    }
+
+    private ResponseEntity<ProductsResource> searchInternal(String url, RestTemplate template) {
+        final URI uri = UriComponentsBuilder.fromHttpUrl(url)
                                             .pathSegment("api", "v1", "products")
                                             .build().toUri();
-
-        final ResponseEntity<ProductsResource> result = restTemplate.getForEntity(uri, ProductsResource.class);
+        final ResponseEntity<ProductsResource> result = template.getForEntity(uri, ProductsResource.class);
 
         if (result.getStatusCode().is2xxSuccessful()) {
             return ResponseEntity.ok(result.getBody());
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result.getBody());
     }
+
+    //////// To discovery info
 
     @GetMapping("/discovery/services")
     public Map<String, List<ServiceInstance>> discoveryServices() {
