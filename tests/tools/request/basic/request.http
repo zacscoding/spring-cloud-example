@@ -1,0 +1,19 @@
+### Basic article example
+
+### Get articles
+GET http://localhost:3000/v1/articles?page=1&size=2
+
+### Post article
+POST http://localhost:3000/v1/article
+Content-Type: application/json
+
+{
+  "title": "title-1",
+  "description": "description-1"
+}
+
+### Get article
+GET http://localhost:3000/v1/article/title-1
+
+### Delete article
+DELETE http://localhost:3000/v1/article/title-1
