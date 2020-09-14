@@ -7,8 +7,14 @@ dependencies {
 
     // mysql
     compile 'mysql:mysql-connector-java'
-
+    // h2
     compile 'com.h2database:h2'
+
+    // guava
+    compile 'com.google.guava:guava'
+
+    testCompile 'org.testcontainers:mysql'
+    testCompile 'org.testcontainers:junit-jupiter'
 }
 
 bootJar {

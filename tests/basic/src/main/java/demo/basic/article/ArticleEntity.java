@@ -31,7 +31,7 @@ public class ArticleEntity extends BaseEntity {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "description", length = 1024)
+    @Column(name = "description")
     private String description;
 
     @Column(name = "author_id")

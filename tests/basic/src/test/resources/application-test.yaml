@@ -1,0 +1,44 @@
+---
+############################
+# Test repository with in-memory h2
+############################
+spring:
+  profiles: inmemory-em
+  datasource:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: false
+
+logging:
+  level:
+    root: info
+
+---
+############################
+# Test repository with mysql docker
+############################
+spring:
+  profiles: mysql-docker
+  datasource:
+    url: jdbc:mysql://localhost:3306/my_database?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      jdbc-url: jdbc:mysql://localhost:3306/my_database?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+
+logging:
+  level:
+    root: info

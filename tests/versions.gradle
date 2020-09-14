@@ -1,0 +1,9 @@
+dependencyManagement {
+    dependencies {
+        // guava
+        dependency "com.google.guava:guava:29.0-jre"
+        // test containers
+        dependency "org.testcontainers:mysql:1.14.3"
+        dependency "org.testcontainers:junit-jupiter:1.14.3"
+    }
+}

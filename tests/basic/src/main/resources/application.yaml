@@ -1,8 +1,10 @@
 server:
   port: 3000
 
-logging.level:
-  org.hibernate.SQL: debug
+logging:
+  level:
+    root: info
+    org.hibernate.SQL: info
 
 spring:
   cache:
@@ -28,5 +30,27 @@ spring:
         format_sql: true
         default_batch_fetch_size: 100
 
-account-service:
-  host: ${ACCOUNT_SERVICE_HOST:http://localhost:3000}
+---
+############################
+# Local stage
+############################
+spring:
+  profiles: local
+  datasource:
+    url: jdbc:mysql://localhost:3306/my_database?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      jdbc-url: jdbc:mysql://localhost:23306/my_database?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+    platform: mysql
+    initialization-mode: always
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
