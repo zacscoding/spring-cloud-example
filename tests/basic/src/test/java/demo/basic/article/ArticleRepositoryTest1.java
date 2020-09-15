@@ -20,9 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 import demo.basic.configuration.JpaConfiguration;
 
 /**
- * Repository test1 : h2 database(in-memory) and {@link TestEntityManager}
+ * Tests article repository layer
  *
- * Caution : check dialect (if use other dialect in application-XXX.yaml)
+ * Environment: h2 database(in-memory) and {@link TestEntityManager}
+ * Caution: check dialect (if use other dialect in application-XXX.yaml)
  *  - log -> org.hibernate.dialect.Dialect            : HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
  */
 @ExtendWith(SpringExtension.class)

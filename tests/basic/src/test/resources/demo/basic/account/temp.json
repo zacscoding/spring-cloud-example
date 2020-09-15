@@ -1,0 +1,23 @@
+{
+  "content": [
+    {
+      "slug": "title10", "title": "title10", "description": "description10",
+      "author": { "authorId": "ae805d46-471c-49f9-ae8a-262f853891c2", "name": "user10", "bio": "user bio10" }
+    }, {
+      "slug": "title9", "title": "title9", "description": "description9",
+      "author": { "authorId": "8756089d-3074-4a43-966b-dc9e2f09c0a7", "name": "user9", "bio": "user bio9" }
+    }, {
+      "slug": "title8", "title": "title8", "description": "description8",
+      "author": { "authorId": "135557f1-f795-4b11-a7b3-830d67db2276", "name": "user8", "bio": "user bio8" }
+    }, {
+      "slug": "title7", "title": "title7", "description": "description7",
+      "author": { "authorId": "30c5d1a2-7c39-49e8-ab06-ca81733d7e35", "name": "user7", "bio": "user bio7" }
+    }, {
+      "slug": "title6", "title": "title6", "description": "description6",
+      "author": { "authorId": "3662bcc9-4a0c-4e9b-964f-9f570c6cf1a6", "name": "user6", "bio": "user bio6" }
+    }
+  ], "pages": {
+  "first": "/v1/articles?page=0&size=5&sort=id,DESC", "prev": "/v1/articles?page=2&size=5&sort=id,DESC",
+  "last": "/v1/articles?page=3&size=5&sort=id,DESC", "next": ""
+}
+}

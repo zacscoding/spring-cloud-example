@@ -25,7 +25,14 @@ import demo.basic.configuration.JpaConfiguration;
 import demo.basic.helper.LogLevelUtil;
 
 /**
- * https://github.com/testcontainers/testcontainers-java/issues/2290
+ *
+ */
+
+/**
+ * Tests article repository layer
+ *
+ * Environment: jdbc database(docker) with test container
+ * See configure: https://github.com/testcontainers/testcontainers-java/issues/2290
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest

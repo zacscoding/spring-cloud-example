@@ -29,7 +29,7 @@ public class ArticleService {
     private final AccountRemoteService accountService;
     private final CacheManager cacheManager;
 
-    public Page<ArticleResource> findArticles(Pageable pageable) {
+    public Page<ArticleResource> getArticles(Pageable pageable) {
         Page<ArticleEntity> page = articleRepository.findAll(pageable);
 
         if (!page.hasContent()) {
@@ -37,11 +37,12 @@ public class ArticleService {
         }
 
         final List<ArticleResource> resources = page.getContent().stream().map(entity -> {
-            final AccountProfile profile = getAccountProfileById(entity.getAuthorId());
+            final AccountProfile profile = getAccountProfileById(
+                    entity.getAuthorId());
             return ArticleAssembler.toResource(entity, profile);
         }).collect(Collectors.toList());
 
-        return new PageImpl<>(resources, page.getPageable(), page.getTotalElements());
+        return new PageImpl<>(resources, page.nextPageable(), page.getTotalElements());
     }
 
     @Transactional

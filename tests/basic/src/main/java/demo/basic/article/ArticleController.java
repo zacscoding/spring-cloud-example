@@ -1,5 +1,6 @@
 package demo.basic.article;
 
+import java.net.URI;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import demo.basic.common.resource.PagedResource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,10 +33,12 @@ public class ArticleController {
      * Get articles given page request
      */
     @GetMapping("/v1/articles")
-    public Page<ArticleResource> getArticles(
+    public PagedResource<ArticleResource> getArticles(
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC, size = 5) Pageable pageable) {
         logger.info("## Request articles. pageable : {}", pageable);
-        return articleService.findArticles(pageable);
+
+        final Page<ArticleResource> page = articleService.getArticles(pageable);
+        return PagedResource.toPagedResource(URI.create("/v1/articles"), page);
     }
 
     /**
