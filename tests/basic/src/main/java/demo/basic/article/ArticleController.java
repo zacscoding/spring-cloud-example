@@ -36,6 +36,11 @@ public class ArticleController {
     public PagedResource<ArticleResource> getArticles(
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC, size = 5) Pageable pageable) {
         logger.info("## Request articles. pageable : {}", pageable);
+        StringBuilder sb = new StringBuilder();
+        for (StackTraceElement elt : Thread.currentThread().getStackTrace()) {
+            sb.append(elt.toString()).append('\n');
+        }
+        logger.info("Stack trace:\n{}", sb.toString());
 
         final Page<ArticleResource> page = articleService.getArticles(pageable);
         return PagedResource.toPagedResource(URI.create("/v1/articles"), page);

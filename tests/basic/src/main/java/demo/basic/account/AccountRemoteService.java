@@ -40,7 +40,7 @@ public class AccountRemoteService {
     }
 
     /**
-     * Call {endpoint}/v1/account/me to get current authenticated account
+     * Call {endpoint}/v1/account/profile/{accountId} to get given account's profile
      */
     public AccountProfile getAccountProfileById(String accountId) {
         final URI uri = UriComponentsBuilder.fromHttpUrl(endpoint)
