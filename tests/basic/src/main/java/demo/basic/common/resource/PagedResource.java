@@ -43,11 +43,10 @@ public class PagedResource<T> {
                                                                       .map(o -> o.getProperty() + "," + o.getDirection()
                                                                                                          .toString())
                                                                       .collect(Collectors.joining()));
+
         final int pageSize = pageable.getPageSize();
 
-        if (!page.isFirst()) {
-            builder.first(buildUri(uri, 0, pageSize, sortOptional));
-        }
+        builder.first(buildUri(uri, 0, pageSize, sortOptional));
         if (page.hasPrevious()) {
             builder.prev(buildUri(uri, page.getNumber() - 1, pageSize, sortOptional));
         }

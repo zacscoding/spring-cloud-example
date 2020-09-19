@@ -10,6 +10,14 @@ Spring cloud 학습을 위한 저장공간!!! :)
 
 ---  
 
+## Spring boot tests  
+[README.md](./tests)    
+
+- RESTFul Spring boot test example
+- Spring cloud contract(TBD)
+
+---  
+
 ## Spring cloud configuration
 [README.md](./configuration)  
 Spring cloud config-server 관련 예제

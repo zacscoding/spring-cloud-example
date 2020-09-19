@@ -6,10 +6,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
@@ -47,7 +49,7 @@ public class ArticleRepositoryTest2 {
     }
 
     @Container
-    private static final MySQLContainer<?> mySqlContainer = new MySQLContainer<>("mysql:8.0.20");
+    static final MySQLContainer<?> mySqlContainer = new MySQLContainer<>("mysql:8.0.20");
 
     @DynamicPropertySource
     static void configureDataSource(DynamicPropertyRegistry registry) {
@@ -58,7 +60,21 @@ public class ArticleRepositoryTest2 {
     }
 
     @Autowired
-    private ArticleRepository articleRepository;
+    ArticleRepository articleRepository;
+
+    @Autowired
+    ApplicationContext ctx;
+
+    @BeforeEach
+    public void setUp() {
+        StringBuilder sb = new StringBuilder();
+        for (String beanName : ctx.getBeanDefinitionNames()) {
+            sb.append("name: ").append(beanName)
+              .append("class: ").append(ctx.getBean(beanName).getClass().getName())
+              .append('\n');
+        }
+        System.out.println(sb);
+    }
 
     @Test
     public void testFindBySlug() {

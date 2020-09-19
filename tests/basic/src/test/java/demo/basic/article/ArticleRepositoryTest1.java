@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
@@ -29,9 +30,12 @@ import demo.basic.configuration.JpaConfiguration;
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 @Import(JpaConfiguration.class)
-@ActiveProfiles({ "test", "inmemory-em" })
+@ActiveProfiles({ "test" })
 @Transactional
 public class ArticleRepositoryTest1 {
+
+    @Autowired
+    ApplicationContext ctx;
 
     @Autowired
     private ArticleRepository articleRepository;
@@ -39,12 +43,23 @@ public class ArticleRepositoryTest1 {
     @Autowired
     private TestEntityManager em;
 
+//    @BeforeEach
+//    public void setUp() {
+//        StringBuilder sb = new StringBuilder();
+//        for (String beanName : ctx.getBeanDefinitionNames()) {
+//            sb.append("name: ").append(beanName)
+//              .append("class: ").append(ctx.getBean(beanName).getClass().getName())
+//              .append('\n');
+//        }
+//        System.out.println(sb);
+//    }
+
     @Test
     public void testFindBySlug() {
         // given
         final ArticleEntity entity = createArticleEntity();
         em.persist(entity);
-        //em.flush();
+        em.flush();
 
         // when
         Optional<ArticleEntity> findOptional = articleRepository.findBySlug(entity.getSlug());

@@ -42,7 +42,7 @@ public class ArticleService {
             return ArticleAssembler.toResource(entity, profile);
         }).collect(Collectors.toList());
 
-        return new PageImpl<>(resources, page.nextPageable(), page.getTotalElements());
+        return new PageImpl<>(resources, pageable, page.getTotalElements());
     }
 
     @Transactional

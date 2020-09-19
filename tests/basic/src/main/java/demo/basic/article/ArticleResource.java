@@ -47,8 +47,18 @@ public class ArticleResource {
         this.createdAt = createdAt;
     }
 
+    @JsonProperty
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
     @JsonIgnore
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    @JsonProperty
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 }

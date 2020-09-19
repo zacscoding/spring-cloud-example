@@ -183,9 +183,19 @@ public class ArticleResource {
         this.createdAt = createdAt;
     }
 
+    @JsonProperty
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
     @JsonIgnore
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    @JsonProperty
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 }
 ```  
@@ -251,7 +261,7 @@ public class ArticleService {
             return ArticleAssembler.toResource(entity, profile);
         }).collect(Collectors.toList());
 
-        return new PageImpl<>(resources, page.nextPageable(), page.getTotalElements());
+        return new PageImpl<>(resources, pageable, page.getTotalElements());
     }
 
     @Transactional
@@ -375,12 +385,6 @@ public class ArticleController {
     public PagedResource<ArticleResource> getArticles(
             @PageableDefault(sort = { "id" }, direction = Sort.Direction.DESC, size = 5) Pageable pageable) {
         logger.info("## Request articles. pageable : {}", pageable);
-        StringBuilder sb = new StringBuilder();
-        for (StackTraceElement elt : Thread.currentThread().getStackTrace()) {
-            sb.append(elt.toString()).append('\n');
-        }
-        logger.info("Stack trace:\n{}", sb.toString());
-
         final Page<ArticleResource> page = articleService.getArticles(pageable);
         return PagedResource.toPagedResource(URI.create("/v1/articles"), page);
     }
@@ -424,8 +428,79 @@ public class ArticleController {
 
 # Test 작성하기  
 
-## Repository 테스트 하기
-; TBD
+위의 시퀀스 다이어그램을 조금 더 구간을 나누면 아래와 같다. 
+
+![Sequence Diagram](./assets/tests_03_slice_test.png)  
+
+- (1) User -> Spring Layer -> Controller Layer : HTTP 요청 ~ 응답까지 테스트를 진행(`@WebMvcTest`) 
+- (2) RemoteService, Repository의 의존성은 Mocking을 하여 해당 서비스에 대하여 단위 테스트 진행
+- (3) 그림에서 Remote Server는 생략하였지만, Remote Server를 Mocking 하여 테스트 진행(`@RestClientTest`)
+- (4) in-memory 또는 docker를 이용하여 Database를 생성 후 테스트(`@DataJpaTest`)  
+
+## Repository 테스트 하기 
+
+위의 시퀀스 다이어그램에서 4번 부분을 살펴보자.  
+
+외부 요소인 Database를 setup하고 `@DataJpaTest`를 이용하여 테스트를 해보자.  
+
+`@DataJpaTest` 어노테이션을 이용하면 full auto-configuration이 아닌 JPA 관련된 컴포넌트만 초기화 할 수 있다.
+
+### in-memory기반의 h2 database를 이용하여 Repository 테스트하기  
+
+```java
+@ExtendWith(SpringExtension.class)
+@DataJpaTest
+@Import(JpaConfiguration.class)
+@ActiveProfiles({ "test", "inmemory-em" })
+@Transactional
+public class ArticleRepositoryTest1 {
+
+    @Autowired
+    private ArticleRepository articleRepository;
+
+    // Test 환경의 EntityManager로 직접 관리할 수도 있다.
+    @Autowired
+    private TestEntityManager em;
+
+    @Test
+    public void testFindBySlug() {
+        // given
+        final ArticleEntity entity = createArticleEntity();
+        em.persist(entity);
+        em.flush();
+
+        // when
+        Optional<ArticleEntity> findOptional = articleRepository.findBySlug(entity.getSlug());
+
+        // then
+        assertThat(findOptional.isPresent()).isTrue();
+        ArticleEntity find = findOptional.get();
+        assertThat(find.getSlug()).isNotEmpty();
+        assertThat(find.getTitle()).isEqualTo(entity.getTitle());
+        assertThat(find.getDescription()).isEqualTo(entity.getDescription());
+        assertThat(find.getAuthorId()).isEqualTo(entity.getAuthorId());
+        assertThat(find.getCreatedAt()).isNotNull();
+        assertThat(find.getUpdatedAt()).isNotNull();
+    }
+```
+
+위와 같이 `ArticleEntity` 객체를 하나 생성해 `TestEntityManager`를 이용하여 `persist()` 호출 후  
+우리가 테스트 할 `ArticleRepository`를 
+
+
+
+`org.springframework.boot.test.autoconfigure.jdbc.TestDatabaseAutoConfiguration`를 살펴보면 Embedded database connection을  
+사용하는 것을 확인할 수 있다.  
+
+
+
+
+
+
+
+ 
+
+### docker기반의 mysql database를 이용하여 Repository 테스트하기
 
 ## Service 테스트 하기
 ; TBD
