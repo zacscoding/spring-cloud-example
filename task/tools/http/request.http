@@ -1,0 +1,11 @@
+### Create a task
+POST http://localhost:3000/task/simple
+Content-Type: application/json
+
+{
+  "names": ["evan", "zaccoding"]
+}
+
+### Get a task
+GET http://localhost:3000/task/simple/12
+
